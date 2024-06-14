@@ -41,6 +41,8 @@ const CreateCourse = () => {
 
   // using add product form for editing product by filling the product state with the product that need to be edited.
   useEffect(() => {
+    if (!editingCourseId) return;
+
     if (editingCourseId) {
       setEditMode(true);
     }
@@ -99,7 +101,7 @@ const CreateCourse = () => {
 
     try {
       // if the form being used for editing product;
-      if (editMode && editingCourseId) {
+      if (editingCourseId && editMode) {
         setLoading(true);
 
         const updatedCourse = await axiosSecure.patch(
@@ -115,10 +117,10 @@ const CreateCourse = () => {
       } else {
         // if the form is being used for adding product;
         setLoading(true);
-        const addedCourse = await axiosSecure.post("/listings", courseData);
-        // navigate(`/auctions/${addedCourse?.data?.data._id}`, {
-        //   replace: true,
-        // });
+        const addedCourse = await axiosSecure.post("/courses", courseData);
+        navigate(`/course/${addedCourse?.data?.data._id}`, {
+          replace: true,
+        });
 
         toast.success("Course created successfully");
         setLoading(false);

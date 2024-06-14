@@ -5,28 +5,31 @@ import useAuth from "../hooks/useAuth";
 
 export const DataContext = createContext(null);
 const DataProvider = ({ children }) => {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
 
   // all courses
   const courses = useGetData("/courses");
 
   // my courses
-  const myCourses = useGetData("courses/myCourses", !!user);
+  const myCourses = useGetData("courses/myCourses", !!user && !loading);
 
   // saved courses
+
+  const savedCourses = useGetData("savedCourses", !!user && !loading);
 
   // enrolled courses
 
   // payment history
 
   const isSaved = (courseId) => {
-    const mySavedCourseIds = savedCourses?.map((course) => course._id);
-
+    console.log(courseId);
+    const mySavedCourseIds = savedCourses?.data?.map((course) => course._id);
+    console.log(mySavedCourseIds);
     if (mySavedCourseIds?.includes(courseId)) {
       return true;
+    } else {
+      return false;
     }
-
-    return false;
   };
 
   const isEnrolled = (courseId) => {

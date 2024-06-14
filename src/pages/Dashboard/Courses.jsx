@@ -16,7 +16,7 @@ const Courses = () => {
     <div>
       <DashboardTitle>Courses</DashboardTitle>
 
-      <CourseGrid items={data} placedIn={"myCourses"} />
+      <CourseGrid items={data} placedIn={"dashboard"} />
     </div>
   );
 };

@@ -1,11 +1,15 @@
-import React from "react";
-import { useParams } from "react-router-dom";
+import React, { useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import useGetData from "../hooks/useGetData";
 import Button from "../components/Button";
 import { VscGlobe } from "react-icons/vsc";
 import { FiBookmark, FiClock } from "react-icons/fi";
 import { IoPlayCircleOutline } from "react-icons/io5";
 import { CgLock } from "react-icons/cg";
+import toast, { Toaster } from "react-hot-toast";
+import useAxiosSecure from "../hooks/useAxiosSecure";
+import useData from "../hooks/useData";
+import useAuth from "../hooks/useAuth";
 
 function convertTime(totalMinutes) {
   const hours = Math.floor(totalMinutes / 60);
@@ -20,13 +24,45 @@ function convertTime(totalMinutes) {
 
 const CourseDetail = () => {
   const { id: courseId } = useParams();
-
+  const { user, loading } = useAuth();
+  const axiosSecure = useAxiosSecure();
+  const { isSaved } = useData();
+  const navigate = useNavigate();
   console.log(courseId);
+
+  const [courseSaved, setCourseSaved] = useState(
+    isSaved(courseId) ? "true" : "false"
+  );
 
   const { data: course, isLoading, error } = useGetData(`/courses/${courseId}`);
 
+  const saveCourseHandler = async () => {
+    try {
+      if (courseSaved) {
+        await axiosSecure.delete(`/savedCourses/${course._id}`);
+        setCourseSaved((p) => !p);
+        toast.success("Course unsaved");
+      } else {
+        await axiosSecure.post(`/savedCourses`, { course: course._id });
+        setCourseSaved((p) => !p);
+        toast.success("Course saved");
+      }
+    } catch (error) {
+      toast.error("Something went wrong!");
+    }
+  };
+
+  const enrollClassHandler = async () => {
+    if (!user && !loading) {
+      return toast.error("Please login to enroll");
+    } else {
+      navigate(`/dashboard/checkout/${course?._id}`);
+    }
+  };
+
   return (
     <div className="pt-4 pb-10">
+      <Toaster toastOptions={{ duration: 4000 }} />
       {/* course detail */}
       <div className="flex lg:flex-row flex-col justify-between  gap-4">
         {/* other detail */}
@@ -60,10 +96,10 @@ const CourseDetail = () => {
               $<span className="text-3xl">{course?.price}</span>
             </h3>
             <div className="space-x-2">
-              <Button>Enroll now</Button>
-              <Button varient={"outlined"}>
+              <Button clickFunc={enrollClassHandler}>Enroll now</Button>
+              <Button clickFunc={saveCourseHandler} varient={"outlined"}>
                 <span className="flex items-center gap-1">
-                  <FiBookmark /> Save
+                  <FiBookmark /> {courseSaved ? "Saved" : "Save"}
                 </span>
               </Button>
             </div>
