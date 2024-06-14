@@ -21,6 +21,7 @@ import CreateCourse from "./pages/Dashboard/CreateCourse.jsx";
 import CourseDetail from "./pages/CourseDetail.jsx";
 import Checkout from "./pages/Dashboard/Checkout.jsx";
 import PrivateRoute from "./privateRoutes/PrivateRoutes.jsx";
+import Home from "./pages/Home.jsx";
 
 const queryClient = new QueryClient();
 
@@ -36,6 +37,10 @@ const router = createBrowserRouter([
       </>
     ),
     children: [
+      {
+        path: "/",
+        element: <Home />,
+      },
       {
         path: "course/:id",
         element: <CourseDetail />,
