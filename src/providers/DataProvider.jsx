@@ -11,11 +11,11 @@ const DataProvider = ({ children }) => {
   const courses = useGetData("/courses");
 
   // my courses
-  const myCourses = useGetData("courses/myCourses", !!user && !loading);
+  const myCourses = useGetData("courses/myCourses", !!user?.email && !loading);
 
   // saved courses
 
-  const savedCourses = useGetData("savedCourses", !!user && !loading);
+  const savedCourses = useGetData("savedCourses", !!user?.email && !loading);
 
   // enrolled courses
 

@@ -8,15 +8,18 @@ const axiosSecure = axios.create({
 });
 
 const useAxiosSecure = () => {
+  const { user } = useAuth();
   const navigate = useNavigate();
   const { userLogout } = useAuth();
 
   useEffect(() => {
+    if (!user) return;
+
     axiosSecure.interceptors.request.use(
       function (config) {
         const token = localStorage.getItem("jwt");
 
-        config.headers.Authorization = token;
+        config.headers.Authorization = `Bearer ${token}`;
         return config;
       },
       function (error) {
@@ -43,7 +46,7 @@ const useAxiosSecure = () => {
       axiosSecure.interceptors.request.eject();
       axiosSecure.interceptors.response.eject();
     };
-  }, [navigate, userLogout]);
+  }, [navigate, userLogout, user]);
 
   return axiosSecure;
 };

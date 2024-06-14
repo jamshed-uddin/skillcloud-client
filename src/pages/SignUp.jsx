@@ -53,7 +53,7 @@ const Signup = () => {
 
   const handleUserSignup = async () => {
     try {
-      const { email, password, confirmPassword } = userCredential;
+      const { name, email, password, confirmPassword } = userCredential;
       if (!name) {
         return setInputError((p) => ({ ...p, name: "Name is required" }));
       } else if (!email) {

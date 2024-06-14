@@ -7,30 +7,30 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import Button from "../Button";
 import useSingleUser from "../../hooks/useSingleUser";
+import useAxiosSecure from "../../hooks/useAxiosSecure";
+import useAuth from "../../hooks/useAuth";
 
 const CardPayInfo = ({ course, price }) => {
+  const { user, loading } = useAuth();
   const navigate = useNavigate();
   const { singleUser } = useSingleUser();
+  const axiosSecure = useAxiosSecure();
   const [cardError, setCardError] = useState("");
   const [processing, setProcessing] = useState(false);
   const [transectionId, setTransectionId] = useState("");
   const stripe = useStripe();
   const elements = useElements();
-  const clientSecret = "";
 
-  // const {data: clientSecret }= useQuery({
-  //   queryKey:     ["paymentIntend", price],
-  //   queryFn: async () => {
-  //     const result = await axios.post(
-  //       `${import.meta.env.VITE_SERVER_URL}/create-payment-intent`,
-  //       {
-  //         price,
-  //       }
-  //     );
-  //     return result.data.clientSecret;
-  //   },
-  //   enabled: !!price,
-  // })
+  const { data: clientSecret } = useQuery({
+    queryKey: ["paymentIntend", price],
+    queryFn: async () => {
+      const result = await axiosSecure.post(`/payments/paymentIntent`, {
+        price,
+      });
+      return result?.data?.data?.clientSecret;
+    },
+    enabled: !!price && !!user && !loading,
+  });
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -74,6 +74,7 @@ const CardPayInfo = ({ course, price }) => {
     setProcessing(false);
 
     if (paymentIntent.status === "succeeded") {
+      console.log(paymentIntent);
       setTransectionId(paymentIntent.id);
 
       const paymentInfo = {
@@ -84,7 +85,7 @@ const CardPayInfo = ({ course, price }) => {
       };
 
       await axios
-        .post(`${import.meta.env.VITE_baseUrl}/payment`, paymentInfo)
+        .post(`${import.meta.env.VITE_baseUrl}/payments`, paymentInfo)
         .then((result) => {
           if (result.ok) {
             setTimeout(() => {
@@ -103,9 +104,10 @@ const CardPayInfo = ({ course, price }) => {
             style: {
               base: {
                 fontSize: "16px",
+
                 color: "#424770",
                 "::placeholder": {
-                  color: "#aab7c4",
+                  color: "#475569",
                 },
               },
               invalid: {
