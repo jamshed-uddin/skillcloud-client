@@ -1,13 +1,17 @@
 import { createContext } from "react";
 import { AuthContext } from "./AuthProviders";
 import useGetData from "../hooks/useGetData";
+import useAuth from "../hooks/useAuth";
 
 export const DataContext = createContext(null);
 const DataProvider = ({ children }) => {
+  const { user } = useAuth();
+
   // all courses
   const courses = useGetData("/courses");
 
   // my courses
+  const myCourses = useGetData("courses/myCourses", !!user);
 
   // saved courses
 
@@ -16,7 +20,7 @@ const DataProvider = ({ children }) => {
   // payment history
 
   const isSaved = (courseId) => {
-    const mySavedCourseIds = myCourse?.map((course) => course._id);
+    const mySavedCourseIds = savedCourses?.map((course) => course._id);
 
     if (mySavedCourseIds?.includes(courseId)) {
       return true;
@@ -35,7 +39,7 @@ const DataProvider = ({ children }) => {
     return false;
   };
 
-  const data = { courses, isSaved, isEnrolled };
+  const data = { courses, myCourses, isSaved, isEnrolled };
   return <DataContext.Provider value={data}>{children}</DataContext.Provider>;
 };
 

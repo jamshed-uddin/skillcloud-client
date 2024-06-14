@@ -8,7 +8,7 @@ import useAuth from "../hooks/useAuth";
 import Button from "../components/Button";
 
 const Login = () => {
-  const { test, user, userLogin, loading, loginWithGoogle } = useAuth();
+  const { user, userLogin, loginWithGoogle } = useAuth();
 
   const [userCredential, setUserCredential] = useState({
     email: "",
@@ -20,6 +20,7 @@ const Login = () => {
     email: "",
     password: "",
   });
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from?.pathname || "/";
@@ -41,7 +42,7 @@ const Login = () => {
       [e.target.name]: e.target.value,
     }));
   };
-
+  console.log(loading);
   const handleUserLogin = async () => {
     if (!userCredential.email) {
       return setInputError((p) => ({ ...p, email: "Email is required" }));
@@ -49,8 +50,11 @@ const Login = () => {
       return setInputError((p) => ({ ...p, password: "Password is required" }));
     }
     try {
+      setLoading(true);
       await userLogin(userCredential.email, userCredential.password);
+      setLoading(false);
     } catch (error) {
+      setLoading(false);
       if (error.message === "Firebase: Error (auth/invalid-credential).") {
         setError("Invalid credential");
       }
@@ -58,13 +62,14 @@ const Login = () => {
   };
 
   const handleGoogleLogin = async () => {
-    console.log("hello");
-
     try {
+      setLoading(true);
       const res = await loginWithGoogle();
       const userBody = { name: res?.user?.displayName, email: res.user?.email };
       await axios.post(`${import.meta.env.VITE_baseUrl}/user`, userBody);
+      setLoading(false);
     } catch (error) {
+      setLoading(false);
       console.log(error);
     }
   };
