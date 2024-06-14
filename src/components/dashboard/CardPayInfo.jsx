@@ -9,6 +9,7 @@ import Button from "../Button";
 import useSingleUser from "../../hooks/useSingleUser";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
 import useAuth from "../../hooks/useAuth";
+import toast, { Toaster } from "react-hot-toast";
 
 const CardPayInfo = ({ course, price }) => {
   const { user, loading } = useAuth();
@@ -21,7 +22,7 @@ const CardPayInfo = ({ course, price }) => {
   const stripe = useStripe();
   const elements = useElements();
 
-  const { data: clientSecret } = useQuery({
+  const { data: clientSecret, isLoading } = useQuery({
     queryKey: ["paymentIntend", price],
     queryFn: async () => {
       const result = await axiosSecure.post(`/payments/paymentIntent`, {
@@ -31,7 +32,7 @@ const CardPayInfo = ({ course, price }) => {
     },
     enabled: !!price && !!user && !loading,
   });
-
+  console.log(isLoading);
   const handleSubmit = async (event) => {
     event.preventDefault();
 
@@ -84,20 +85,23 @@ const CardPayInfo = ({ course, price }) => {
         status: paymentIntent?.status,
       };
 
-      await axios
-        .post(`${import.meta.env.VITE_baseUrl}/payments`, paymentInfo)
-        .then((result) => {
-          if (result.ok) {
-            setTimeout(() => {
-              navigate("/dashboard/enrolledCourses");
-            }, 4000);
-          }
-        });
+      await axiosSecure.post(`/payments`, paymentInfo).then((result) => {
+        if (result) {
+          console.log(result);
+          toast.success("Payment success.Redirecting to enrolled courses");
+          setTimeout(() => {
+            navigate("/dashboard/enrolledCourses");
+          }, 4000);
+        }
+      });
+
+      await axiosSecure.post(`/enrolledCourses`, { course: course._id });
     }
   };
 
   return (
     <div>
+      <Toaster toastOptions={{ duration: 4000 }} />
       <form onSubmit={handleSubmit}>
         <CardElement
           options={{

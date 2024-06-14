@@ -6,9 +6,23 @@ import useData from "../../hooks/useData";
 const MyCourses = () => {
   const { myCourses } = useData();
   const { data, isLoading, error } = myCourses || {};
-
-  if (isLoading) {
+  if (error) {
+    return (
+      <div className="  text-2xl">
+        <h1>Something went wrong</h1>
+      </div>
+    );
+  }
+  if (isLoading && !data) {
     return <CardSkeleton />;
+  }
+
+  if (!data?.length) {
+    return (
+      <div className="  text-2xl">
+        <h1>No course here</h1>
+      </div>
+    );
   }
 
   return (

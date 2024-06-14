@@ -6,14 +6,29 @@ import useData from "../../hooks/useData";
 const Courses = () => {
   const { courses } = useData();
   const { data, isLoading, error } = courses || {};
-  console.log(data);
 
-  if (isLoading) {
+  if (error) {
+    return (
+      <div className="  text-2xl">
+        <h1>Something went wrong</h1>
+      </div>
+    );
+  }
+
+  if (isLoading && !data) {
     return <CardSkeleton />;
   }
 
+  if (!data?.length) {
+    return (
+      <div className="  text-2xl">
+        <h1>No course here</h1>
+      </div>
+    );
+  }
+
   return (
-    <div>
+    <div className="mb-8">
       <DashboardTitle>Courses</DashboardTitle>
 
       <CourseGrid items={data} placedIn={"dashboard"} />

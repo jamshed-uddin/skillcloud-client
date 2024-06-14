@@ -20,6 +20,7 @@ import PaymentHistory from "./pages/Dashboard/PaymentHistory.jsx";
 import CreateCourse from "./pages/Dashboard/CreateCourse.jsx";
 import CourseDetail from "./pages/CourseDetail.jsx";
 import Checkout from "./pages/Dashboard/Checkout.jsx";
+import PrivateRoute from "./privateRoutes/PrivateRoutes.jsx";
 
 const queryClient = new QueryClient();
 
@@ -39,6 +40,10 @@ const router = createBrowserRouter([
         path: "course/:id",
         element: <CourseDetail />,
       },
+      {
+        path: "allcourse",
+        element: <Courses />,
+      },
     ],
   },
   {
@@ -53,46 +58,84 @@ const router = createBrowserRouter([
     path: "dashboard",
     element: (
       <DataProvider>
-        <Dashboard />
+        <PrivateRoute>
+          <Dashboard />
+        </PrivateRoute>
       </DataProvider>
     ),
     children: [
       {
         path: "overview",
-        element: <Overview />,
+        element: (
+          <PrivateRoute>
+            <Overview />
+          </PrivateRoute>
+        ),
       },
       {
         path: "courses",
-        element: <Courses />,
+        element: (
+          <PrivateRoute>
+            <Courses />
+          </PrivateRoute>
+        ),
       },
       {
         path: "myCourses",
-        element: <MyCourses />,
+        element: (
+          <PrivateRoute>
+            <MyCourses />
+          </PrivateRoute>
+        ),
       },
       {
         path: "savedCourses",
-        element: <SavedCourses />,
+        element: (
+          <PrivateRoute>
+            <SavedCourses />
+          </PrivateRoute>
+        ),
       },
       {
         path: "enrolledCourses",
-        element: <EnrolledCourses />,
+        element: (
+          <PrivateRoute>
+            <EnrolledCourses />
+          </PrivateRoute>
+        ),
       },
       {
         path: "paymentHistory",
-        element: <PaymentHistory />,
+        element: (
+          <PrivateRoute>
+            <PaymentHistory />
+          </PrivateRoute>
+        ),
       },
       {
         path: "createCourse",
-        element: <CreateCourse />,
+        element: (
+          <PrivateRoute>
+            <CreateCourse />
+          </PrivateRoute>
+        ),
       },
 
       {
         path: "editCourse/:id",
-        element: <CreateCourse />,
+        element: (
+          <PrivateRoute>
+            <CreateCourse />
+          </PrivateRoute>
+        ),
       },
       {
         path: "checkout/:id",
-        element: <Checkout />,
+        element: (
+          <PrivateRoute>
+            <Checkout />
+          </PrivateRoute>
+        ),
       },
     ],
   },

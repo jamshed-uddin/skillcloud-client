@@ -86,7 +86,7 @@ const CourseCard = ({ course, placedIn }) => {
       </Link>
       <div className="absolute bottom-0 right-0 leading-3">
         {placedIn === "dashboard" &&
-          singleUser._id === course?.instructor?._id && (
+          singleUser?._id === course?.instructor?._id && (
             <div className="">
               <div className="flex items-center gap-2 ">
                 <Link to={`/dashboard/editCourse/${course?._id}`} replace>

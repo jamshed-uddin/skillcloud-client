@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import useGetData from "../hooks/useGetData";
 import Button from "../components/Button";
@@ -10,6 +10,7 @@ import toast, { Toaster } from "react-hot-toast";
 import useAxiosSecure from "../hooks/useAxiosSecure";
 import useData from "../hooks/useData";
 import useAuth from "../hooks/useAuth";
+import DetailSkeleton from "../components/DetailSkeleton";
 
 function convertTime(totalMinutes) {
   const hours = Math.floor(totalMinutes / 60);
@@ -26,17 +27,29 @@ const CourseDetail = () => {
   const { id: courseId } = useParams();
   const { user, loading } = useAuth();
   const axiosSecure = useAxiosSecure();
-  const { isSaved } = useData();
+  const { isSaved, isEnrolled } = useData();
   const navigate = useNavigate();
   console.log(courseId);
 
-  const [courseSaved, setCourseSaved] = useState(
-    isSaved(courseId) ? "true" : "false"
-  );
+  const [courseSaved, setCourseSaved] = useState(false);
+  useEffect(() => {
+    if (isSaved(courseId)) {
+      setCourseSaved(true);
+    } else {
+      setCourseSaved(false);
+    }
+  }, [courseId, isSaved]);
 
-  const { data: course, isLoading, error } = useGetData(`/courses/${courseId}`);
+  const {
+    data: course,
+    isLoading: courseLoading,
+    error,
+  } = useGetData(`/courses/${courseId}`);
 
   const saveCourseHandler = async () => {
+    if (!user && !loading) {
+      return toast.error("Please login to save");
+    }
     try {
       if (courseSaved) {
         await axiosSecure.delete(`/savedCourses/${course._id}`);
@@ -60,6 +73,17 @@ const CourseDetail = () => {
     }
   };
 
+  if (courseLoading) {
+    return <DetailSkeleton />;
+  }
+
+  if (error) {
+    return (
+      <div className="  text-2xl">
+        <h1>Something went wrong</h1>
+      </div>
+    );
+  }
   return (
     <div className="pt-4 pb-10">
       <Toaster toastOptions={{ duration: 4000 }} />
@@ -92,17 +116,25 @@ const CourseDetail = () => {
                 {convertTime(course?.duration)}
               </span>
             </div>
-            <h3>
-              $<span className="text-3xl">{course?.price}</span>
-            </h3>
-            <div className="space-x-2">
-              <Button clickFunc={enrollClassHandler}>Enroll now</Button>
-              <Button clickFunc={saveCourseHandler} varient={"outlined"}>
-                <span className="flex items-center gap-1">
-                  <FiBookmark /> {courseSaved ? "Saved" : "Save"}
-                </span>
-              </Button>
-            </div>
+            {isEnrolled(courseId) && user ? (
+              <div className="text-lg font-semibold">
+                Enrolled course.Keep learning
+              </div>
+            ) : (
+              <>
+                <h3>
+                  $<span className="text-3xl">{course?.price}</span>
+                </h3>
+                <div className="space-x-2">
+                  <Button clickFunc={enrollClassHandler}>Enroll now</Button>
+                  <Button clickFunc={saveCourseHandler} varient={"outlined"}>
+                    <span className="flex items-center gap-1">
+                      <FiBookmark /> {courseSaved ? "Saved" : "Save"}
+                    </span>
+                  </Button>
+                </div>
+              </>
+            )}
           </div>
         </div>
         {/* course thumbnail */}
@@ -118,12 +150,14 @@ const CourseDetail = () => {
       <div className="mt-5">
         <h1 className="text-3xl font-semibold flex items-center gap-2">
           <span> Contents</span>
-          <span className="text-xl">
-            <CgLock />
-          </span>
+          {!isEnrolled(courseId) && user && (
+            <span className="text-xl">
+              <CgLock />
+            </span>
+          )}
         </h1>
         <div className="mt-2 space-y-1">
-          {course?.content?.map((item, index) => (
+          {course?.contents?.map((item, index) => (
             <div
               key={index}
               className="flex items-center lg:text-2xl text-xl gap-1 "

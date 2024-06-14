@@ -1,12 +1,11 @@
 import { Link } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
-import useData from "../hooks/useData";
+
 import Button from "./Button";
 
 const Navbar = () => {
   const { user } = useAuth();
-  const { test } = useData();
-  console.log(test);
+
   return (
     <div className="flex justify-between items-center py-3">
       <div>
@@ -14,7 +13,7 @@ const Navbar = () => {
       </div>
       <div className="flex justify-between items-center gap-6">
         <div>
-          <Link>
+          <Link to={"/allcourse"}>
             <span className="text-green-600 font-medium">Courses</span>
           </Link>
         </div>

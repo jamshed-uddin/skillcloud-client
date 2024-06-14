@@ -1,5 +1,5 @@
 import { createContext } from "react";
-import { AuthContext } from "./AuthProviders";
+
 import useGetData from "../hooks/useGetData";
 import useAuth from "../hooks/useAuth";
 
@@ -18,8 +18,13 @@ const DataProvider = ({ children }) => {
   const savedCourses = useGetData("savedCourses", !!user?.email && !loading);
 
   // enrolled courses
+  const enrolledCourses = useGetData(
+    "enrolledCourses",
+    !!user?.email && !loading
+  );
 
   // payment history
+  const paymentHistory = useGetData("payments", !!user?.email && !loading);
 
   const isSaved = (courseId) => {
     console.log(courseId);
@@ -33,16 +38,39 @@ const DataProvider = ({ children }) => {
   };
 
   const isEnrolled = (courseId) => {
-    const enrolledCourseIds = enrolledCourse?.map((course) => course._id);
+    const enrolledCourseIds = enrolledCourses?.data?.map(
+      (course) => course._id
+    );
 
     if (enrolledCourseIds?.includes(courseId)) {
       return true;
+    } else {
+      return false;
     }
-
-    return false;
   };
 
-  const data = { courses, myCourses, isSaved, isEnrolled };
+  const myEarning = (userId) => {
+    const filteredTransactions = enrolledCourses?.data?.filter(
+      (transaction) => transaction?.course?.instructor === userId
+    );
+    const totalAmount = filteredTransactions?.reduce(
+      (total, transaction) => total + transaction.amount,
+      0
+    );
+
+    return totalAmount;
+  };
+
+  const data = {
+    courses,
+    myCourses,
+    savedCourses,
+    enrolledCourses,
+    paymentHistory,
+    isSaved,
+    isEnrolled,
+    myEarning,
+  };
   return <DataContext.Provider value={data}>{children}</DataContext.Provider>;
 };
 
